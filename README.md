@@ -109,8 +109,7 @@ npm run dev:admin    # Standalone admin only
 | Role     | Email                    | Password     |
 | -------- | ------------------------ | ------------ |
 | Admin    | admin@pawparadise.com    | admin123     |
-| Customer | jane@example.com         | password123  |
-| Customer | john@example.com         | password123  |
+| 
 
 Promo codes: `SAVE20` (20%), `PAWLOVE10` (10%), `WELCOME15` (15%)
 
