@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply antialiased text-gray-800 bg-gray-50;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  ::selection {
+    @apply bg-indigo-100 text-indigo-900;
+  }
+}

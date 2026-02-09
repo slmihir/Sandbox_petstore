@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ─────────────────────────────────────────
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum ProductCategory {
+  FOOD
+  TOYS
+  BEDS
+  ACCESSORIES
+  GROOMING
+  HEALTH
+}
+
+enum PetType {
+  DOG
+  CAT
+  BIRD
+  FISH
+  REPTILE
+  ALL
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+// ─── Models ────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(CUSTOMER)
+  avatarUrl    String?  @map("avatar_url")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  orders  Order[]
+  reviews Review[]
+
+  @@map("users")
+}
+
+model Product {
+  id            String          @id @default(uuid())
+  name          String
+  slug          String          @unique
+  category      ProductCategory
+  petType       PetType         @map("pet_type")
+  brand         String
+  price         Decimal         @db.Decimal(10, 2)
+  originalPrice Decimal?        @map("original_price") @db.Decimal(10, 2)
+  image         String
+  images        String[]
+  description   String          @db.Text
+  features      String[]
+  weight        String
+  dimensions    String?
+  rating        Decimal         @default(0) @db.Decimal(2, 1)
+  reviewCount   Int             @default(0) @map("review_count")
+  featured      Boolean         @default(false)
+  inStock       Boolean         @default(true) @map("in_stock")
+  stockCount    Int             @default(0) @map("stock_count")
+  sku           String          @unique
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  @@index([category])
+  @@index([petType])
+  @@index([brand])
+  @@index([featured])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String      @map("user_id")
+  status          OrderStatus @default(PENDING)
+  subtotal        Decimal     @db.Decimal(10, 2)
+  discount        Decimal     @default(0) @db.Decimal(10, 2)
+  shippingCost    Decimal     @default(0) @map("shipping_cost") @db.Decimal(10, 2)
+  total           Decimal     @db.Decimal(10, 2)
+  promoCode       String?     @map("promo_code")
+  shippingAddress Json        @map("shipping_address")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  user  User        @relation(fields: [userId], references: [id])
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(uuid())
+  orderId     String  @map("order_id")
+  productId   String  @map("product_id")
+  productName String  @map("product_name")
+  quantity    Int
+  price       Decimal @db.Decimal(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  userId    String   @map("user_id")
+  userName  String   @map("user_name")
+  rating    Int
+  comment   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([productId])
+  @@index([userId])
+  @@map("reviews")
+}
+
+model Testimonial {
+  id          String @id @default(uuid())
+  name        String
+  avatarUrl   String @map("avatar_url")
+  comment     String @db.Text
+  rating      Int
+  productType String @map("product_type")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("testimonials")
+}
+
+model PromoCode {
+  id              String   @id @default(uuid())
+  code            String   @unique
+  discountPercent Int      @map("discount_percent")
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("promo_codes")
+}
