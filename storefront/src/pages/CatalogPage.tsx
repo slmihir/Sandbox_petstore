@@ -163,7 +163,7 @@ export default function CatalogPage() {
         </button>
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Filters */}
         <aside
           className={`${

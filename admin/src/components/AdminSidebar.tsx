@@ -14,7 +14,7 @@ export default function AdminSidebar() {
   return (
     <aside className="w-64 bg-gray-900 text-white flex flex-col min-h-screen shrink-0">
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-gray-800">
+      <div className="px-6 py-4 border-b border-gray-800 hidden md:block">
         <div className="flex items-center gap-2">
           <ClipboardList className="w-7 h-7 text-indigo-400" />
           <span className="text-lg font-bold">

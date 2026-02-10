@@ -211,7 +211,7 @@ export default function ProductDetailPage() {
           )}
 
           {/* Perks */}
-          <div className="flex gap-4 mt-6">
+          <div className="flex flex-wrap gap-3 sm:gap-4 mt-6">
             {[
               { icon: Truck, text: 'Free shipping over $49' },
               { icon: RotateCcw, text: '30-day returns' },

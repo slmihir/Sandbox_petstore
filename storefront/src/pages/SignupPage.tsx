@@ -36,9 +36,9 @@ function PasswordStrength({ password }: { password: string }) {
         ))}
       </div>
       {/* Label + checklist */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
         <span className={`text-xs font-medium ${labelColor}`}>{label}</span>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
           {strengthRules.map((rule, i) => (
             <span
               key={i}

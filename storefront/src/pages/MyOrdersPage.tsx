@@ -85,7 +85,7 @@ export default function MyOrdersPage() {
                   className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors text-left"
                   aria-expanded={isExpanded}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${statusInfo.bgColor}`}>
                       <StatusIcon className={`w-5 h-5 ${statusInfo.color}`} />
                     </div>
@@ -94,11 +94,11 @@ export default function MyOrdersPage() {
                       <p className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.bgColor} ${statusInfo.color}`}>
                       {statusInfo.label}
                     </span>
-                    <span className="font-bold text-gray-900">{formatCurrency(order.total)}</span>
+                    <span className="hidden sm:inline font-bold text-gray-900">{formatCurrency(order.total)}</span>
                     <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </div>
                 </button>

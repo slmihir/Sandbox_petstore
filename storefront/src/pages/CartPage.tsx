@@ -43,24 +43,24 @@ export default function CartPage() {
           {items.map(item => (
             <div
               key={item.product.id}
-              className="flex gap-4 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm"
+              className="flex gap-3 sm:gap-4 bg-white border border-gray-100 rounded-2xl p-4 shadow-sm"
             >
               <Link to={`/products/${item.product.id}`} className="shrink-0">
                 <img
                   src={item.product.image}
                   alt={item.product.name}
-                  className="w-28 h-28 rounded-xl object-cover"
+                  className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl object-cover"
                 />
               </Link>
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                   <div>
                     <Link to={`/products/${item.product.id}`} className="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
                       {item.product.name}
                     </Link>
                     <p className="text-sm text-gray-500">{item.product.brand} &middot; {item.product.weight}</p>
                   </div>
-                  <p className="font-bold text-indigo-600 text-lg">{formatCurrency(item.product.price * item.quantity)}</p>
+                  <p className="font-bold text-indigo-600 text-base sm:text-lg">{formatCurrency(item.product.price * item.quantity)}</p>
                 </div>
                 <div className="flex items-center justify-between mt-4">
                   <div className="flex items-center gap-2">
