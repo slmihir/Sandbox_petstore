@@ -1,6 +1,6 @@
 # PawParadise
 
-Full-stack e-commerce platform for pet products. Built with React, Express, PostgreSQL, and Prisma.
+Full-stack e-commerce platform for pet products. Built with React, Express, PostgreSQL, Prisma, and React Native (Expo).
 
 ## Architecture
 
@@ -14,6 +14,14 @@ pawparadise/
 │       ├── pages/admin/   # Admin dashboard, inventory, orders
 │       └── pages/         # Shop, cart, checkout, account, etc.
 ├── admin/            # Standalone admin panel (optional, runs on port 5174)
+├── mobile/           # Native mobile admin app (iOS + Android, Expo)
+│   └── src/
+│       ├── screens/       # Login, Dashboard, Orders, Inventory, Profile
+│       ├── services/      # API client layer (mirrors web admin)
+│       ├── navigation/    # React Navigation (tabs + stacks)
+│       ├── components/    # Reusable UI components
+│       ├── context/       # Auth state management
+│       └── theme/         # Colors, spacing constants
 ├── shared/           # Shared TypeScript types
 └── scripts/          # Database setup automation
 ```
@@ -24,18 +32,21 @@ pawparadise/
 
 **Admin (standalone)** (`localhost:5174`) — optional separate admin app. The same functionality is built into the storefront at `/admin`, so this is only needed if you want a standalone admin portal.
 
+**Mobile Admin** (iOS + Android) — native mobile app for admin tasks. Connects to the same backend API. Built with React Native and Expo.
+
 ## Tech Stack
 
 | Layer     | Technology                                           |
 | --------- | ---------------------------------------------------- |
 | Frontend  | React 19, TypeScript, Tailwind CSS 4, Vite 6         |
+| Mobile    | React Native 0.81, Expo SDK 54, TypeScript           |
 | Backend   | Node.js, Express 5, TypeScript                       |
 | Database  | PostgreSQL                                           |
 | ORM       | Prisma 6                                             |
 | Auth      | JWT (jsonwebtoken + bcrypt)                          |
 | Validation| Zod (backend), custom validators (frontend)          |
-| Icons     | Lucide React                                         |
-| Routing   | React Router 7                                       |
+| Icons     | Lucide React (web), Ionicons (mobile)                |
+| Routing   | React Router 7 (web), React Navigation 7 (mobile)   |
 
 ## Prerequisites
 
@@ -216,6 +227,157 @@ Base URL: `http://localhost:3001/api`
 | PATCH  | `/admin/products/:id`             | Update product           |
 | DELETE | `/admin/products/:id`             | Delete product           |
 
+## Mobile Admin App (iOS + Android)
+
+The mobile app provides a native admin experience for managing orders and inventory on the go. It connects to the same backend API used by the web admin panel.
+
+### Mobile Tech Stack
+
+| Layer       | Technology                                     |
+| ----------- | ---------------------------------------------- |
+| Framework   | React Native 0.81, Expo SDK 54                 |
+| Language    | TypeScript 5.9                                 |
+| Navigation  | React Navigation 7 (bottom tabs + native stack)|
+| Storage     | AsyncStorage (JWT token persistence)           |
+| Icons       | @expo/vector-icons (Ionicons)                  |
+| UI          | Plain React Native components + StyleSheet     |
+
+### Mobile Prerequisites
+
+- **Node.js** 18+ (same as the backend)
+- **Expo CLI** (installed automatically via npx)
+- **For iOS**: macOS with [Xcode](https://developer.apple.com/xcode/) installed (includes iOS Simulator)
+- **For Android**: [Android Studio](https://developer.android.com/studio) with:
+  - Android SDK (API 36 recommended)
+  - Android Emulator with a virtual device created
+  - Environment variables configured:
+    ```bash
+    export ANDROID_HOME=$HOME/Library/Android/sdk
+    export PATH=$PATH:$ANDROID_HOME/emulator
+    export PATH=$PATH:$ANDROID_HOME/platform-tools
+    ```
+
+### Mobile Quick Start
+
+#### 1. Install dependencies
+
+```bash
+npm run install:mobile
+```
+
+#### 2. Start the backend API
+
+The mobile app needs the backend running:
+
+```bash
+npm run dev:api
+```
+
+#### 3. Start Expo and launch on a device/simulator
+
+```bash
+npm run dev:mobile
+```
+
+Once the Expo dev server starts, press:
+- **`i`** — open on iOS Simulator
+- **`a`** — open on Android Emulator
+- Scan the QR code with **Expo Go** on a physical device
+
+#### 4. Login
+
+Use the same admin credentials:
+
+| Email                    | Password     |
+| ------------------------ | ------------ |
+| admin@pawparadise.com    | admin123     |
+
+### App Features & Navigation
+
+The app uses a bottom tab navigator with 4 tabs:
+
+```
+Login Screen
+  └── (authenticated) → Bottom Tabs
+       ├── Dashboard    — Stats cards, recent orders, category breakdown
+       ├── Orders       — Order list with status filters, search, pagination
+       │   └── Order Detail — Full order info + status update actions
+       ├── Inventory    — Product list with search, sort, stock badges
+       │   └── Product Form — Add/Edit product (all fields)
+       └── Profile      — User info, role badge, sign out
+```
+
+**Dashboard** — Displays 4 stat cards (total products, orders, revenue, users), a recent orders list (tap to view details), and a category breakdown with colored progress bars. Supports pull-to-refresh.
+
+**Orders** — FlatList with horizontal status filter chips (All, Pending, Processing, Shipped, Delivered, Cancelled). Includes search by order ID, customer name, email, or product name. Supports pagination with "Load More". Tap an order to view details and update its status with contextual action buttons (Confirm, Ship, Mark Delivered, Cancel).
+
+**Inventory** — Product list with stock level badges (green for in-stock, amber for low stock, red for out of stock). Search by product name, sort by name/price/category. Tap edit to modify a product or tap "Add Product" to create a new one. Swipe-style delete with confirmation dialog.
+
+**Profile** — Displays the logged-in admin's name, email, role badge, and join date. Sign out button with confirmation alert. Shows app version.
+
+### Mobile API Configuration
+
+The app automatically selects the correct API URL based on the platform:
+
+| Platform          | API URL                        |
+| ----------------- | ------------------------------ |
+| iOS Simulator     | `http://localhost:3001/api`    |
+| Android Emulator  | `http://10.0.2.2:3001/api`    |
+| Physical Device   | Set via `app.json` (see below) |
+
+Android emulators cannot reach `localhost` directly — `10.0.2.2` maps to the host machine's loopback address.
+
+**For physical devices** or custom API URLs, add `extra.apiUrl` to `mobile/app.json`:
+
+```json
+{
+  "expo": {
+    "extra": {
+      "apiUrl": "http://192.168.1.100:3001/api"
+    }
+  }
+}
+```
+
+Replace `192.168.1.100` with your machine's local IP address (find it with `ifconfig | grep inet`).
+
+### Mobile File Structure
+
+```
+mobile/
+├── App.tsx                          # Root: SafeAreaProvider → AuthProvider → Navigation
+├── app.json                         # Expo config (name, icons, bundle IDs)
+├── package.json
+├── tsconfig.json
+├── assets/                          # App icons, splash screen
+└── src/
+    ├── config/api.ts                # API_BASE_URL (platform-aware)
+    ├── types/index.ts               # TypeScript interfaces
+    ├── services/
+    │   ├── storage.ts               # AsyncStorage token helpers
+    │   ├── api.ts                   # Base request<T>() + ApiError class
+    │   ├── authApi.ts               # login(), me()
+    │   ├── adminApi.ts              # dashboard, orders, inventory, products CRUD
+    │   └── productsApi.ts           # Product listing, brands, categories
+    ├── context/AuthContext.tsx       # Auth state, login/logout, token persistence
+    ├── navigation/
+    │   ├── RootNavigator.tsx        # Login vs AppTabs based on auth state
+    │   └── AppTabs.tsx              # Bottom tabs + nested stack navigators
+    ├── screens/
+    │   ├── LoginScreen.tsx          # Dark-themed login form
+    │   ├── DashboardScreen.tsx      # Stats, recent orders, category bars
+    │   ├── OrdersScreen.tsx         # Order list with filters + search
+    │   ├── OrderDetailScreen.tsx    # Order detail + status actions
+    │   ├── InventoryScreen.tsx      # Product list + search/sort
+    │   ├── ProductFormScreen.tsx    # Add/Edit product form
+    │   └── ProfileScreen.tsx        # User info + sign out
+    ├── components/                  # StatCard, StatusBadge, SearchBar, etc.
+    ├── hooks/useRefresh.ts          # Pull-to-refresh helper
+    └── theme/
+        ├── colors.ts                # Color constants
+        └── spacing.ts               # Spacing & radius constants
+```
+
 ## Building for Production
 
 ### 1. Build everything
@@ -322,19 +484,21 @@ VITE_API_URL="https://yourdomain.com/api" npm run build:store
 
 Run from the project root:
 
-| Script               | Description                                       |
-| -------------------- | ------------------------------------------------- |
-| `npm run install:all`| Install deps for backend, storefront, and admin   |
-| `npm run setup`      | Automated database setup (create, migrate, seed)  |
-| `npm run dev`        | Start all services (API + storefront + admin)     |
-| `npm run dev:api`    | Start backend API only                            |
-| `npm run dev:store`  | Start storefront only                             |
-| `npm run dev:admin`  | Start standalone admin only                       |
-| `npm run build:all`  | Build backend + storefront + admin for production |
-| `npm run db:migrate` | Run Prisma migrations                             |
-| `npm run db:seed`    | Seed demo data                                    |
-| `npm run db:reset`   | Reset database (drop + migrate + seed)            |
-| `npm run db:studio`  | Open Prisma Studio GUI                            |
+| Script                 | Description                                       |
+| ---------------------- | ------------------------------------------------- |
+| `npm run install:all`  | Install deps for backend, storefront, and admin   |
+| `npm run install:mobile`| Install deps for the mobile app                  |
+| `npm run setup`        | Automated database setup (create, migrate, seed)  |
+| `npm run dev`          | Start all web services (API + storefront + admin) |
+| `npm run dev:api`      | Start backend API only                            |
+| `npm run dev:store`    | Start storefront only                             |
+| `npm run dev:admin`    | Start standalone admin only                       |
+| `npm run dev:mobile`   | Start Expo dev server for the mobile app          |
+| `npm run build:all`    | Build backend + storefront + admin for production |
+| `npm run db:migrate`   | Run Prisma migrations                             |
+| `npm run db:seed`      | Seed demo data                                    |
+| `npm run db:reset`     | Reset database (drop + migrate + seed)            |
+| `npm run db:studio`    | Open Prisma Studio GUI                            |
 
 ## Troubleshooting
 
@@ -352,6 +516,35 @@ Ensure PostgreSQL is running: `pg_isready -h localhost`. Start it with `brew ser
 
 **Backend uses wrong database**
 If you have `DATABASE_URL` set in your shell environment, it may override `backend/.env`. Either unset it (`unset DATABASE_URL`) or the backend's dotenv config will auto-override it.
+
+**Mobile: "Network request failed" on Android emulator**
+Android emulators can't reach `localhost`. The app handles this automatically (`10.0.2.2`), but if you previously had `extra.apiUrl` set in `mobile/app.json`, it overrides the platform detection. Remove the `extra` block and restart Expo with cache cleared: `cd mobile && npx expo start --clear`.
+
+**Mobile: Images not loading on Android emulator**
+The emulator's DNS may not be resolving external hostnames. Kill the emulator and relaunch it with custom DNS:
+```bash
+emulator -avd <Your_AVD_Name> -dns-server 8.8.8.8,8.8.4.4
+```
+
+**Mobile: Content overlapping the status bar / Dynamic Island**
+All screens use `SafeAreaView` from `react-native-safe-area-context`. If you add a new screen, wrap it with `<SafeAreaView edges={['top']}>` — do NOT use the deprecated `SafeAreaView` from `react-native`.
+
+**Mobile: Expo config changes not taking effect**
+After modifying `mobile/app.json`, restart Expo with cache cleared:
+```bash
+cd mobile && npx expo start --clear
+```
+
+**Mobile: Android emulator not detected by Expo**
+Ensure the emulator is running and detected by ADB:
+```bash
+adb devices
+```
+If nothing shows, launch the emulator manually from Android Studio or via CLI:
+```bash
+emulator -avd <Your_AVD_Name>
+```
+Then press `a` in the Expo terminal.
 
 ## License
 

@@ -37,3 +37,11 @@ Thumbs.db
 # Prisma
 backend/prisma/*.db
 backend/prisma/*.db-journal
+
+# Expo / React Native
+mobile/.expo/
+mobile/android/
+mobile/ios/
+*.apk
+*.aab
+*.ipa
